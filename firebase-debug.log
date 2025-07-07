@@ -1,0 +1,29 @@
+[debug] [2025-06-18T21:56:04.658Z] ----------------------------------------------------------------------
+[debug] [2025-06-18T21:56:04.660Z] Command:       /opt/homebrew/Cellar/node/23.11.0/bin/node /opt/homebrew/bin/firebase init
+[debug] [2025-06-18T21:56:04.660Z] CLI Version:   14.4.0
+[debug] [2025-06-18T21:56:04.660Z] Platform:      darwin
+[debug] [2025-06-18T21:56:04.660Z] Node Version:  v23.11.0
+[debug] [2025-06-18T21:56:04.661Z] Time:          Wed Jun 18 2025 23:56:04 GMT+0200 (Central European Summer Time)
+[debug] [2025-06-18T21:56:04.661Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-06-18T21:56:04.662Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-06-18T21:56:04.678Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-06-18T21:56:04.678Z] > authorizing via signed-in user (diegodossantos.es@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /Users/diegodossantos.esgmail.com/Downloads/Sport-Ev-main
+
+[debug] [2025-06-18T21:56:04.968Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-06-18T21:56:04.968Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2025-06-29T07:03:37.263Z] Error: read EIO
+    at TTY.onStreamRead (node:internal/stream_base_commons:216:20)
+    at TTY.callbackTrampoline (node:internal/async_hooks:130:17)
+[error] 
+[error] Error: An unexpected error has occurred.
