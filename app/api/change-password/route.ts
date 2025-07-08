@@ -1,4 +1,3 @@
-import prismadb from '../../../lib/prismadb';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import bcrypt from 'bcrypt';
