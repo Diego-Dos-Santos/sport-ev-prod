@@ -1,10 +1,13 @@
+import prismadb from '../../../lib/prismadb';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import prismadb from '../../../lib/prismadb';
 import bcrypt from 'bcrypt';
 import { authOptions } from '../../../pages/api/auth/[...nextauth]';
 
 export async function POST(request: Request) {
+    const { PrismaClient } = await import('@prisma/client');
+    const prismadb = new PrismaClient();
+
     try {
         const session = await getServerSession(authOptions);
         
