@@ -6,7 +6,9 @@
     "dev": "next dev -p 3005",
     "start": "next start -p 3005",
     "lint": "next lint",
-    "postinstall": "prisma generate",
+    "deploy:prod": "prisma generate && prisma db push && prisma db seed",
+    "seed": "prisma db seed",
+    "postinstall": "prisma generate && prisma db push && prisma db seed",
     "build": "prisma generate && next build",
     "vercel-build": "prisma generate && next build" 
   },

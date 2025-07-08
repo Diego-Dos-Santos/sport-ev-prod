@@ -1,21 +1,13 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-async function main() {
-  try {
-    // Clear existing data
-    console.log('Clearing existing data...')
-    await prisma.favorite.deleteMany()
-    await prisma.event.deleteMany()
-
-    console.log('Creating sports events...')
-    const eventos = [
+const eventos: Prisma.EventCreateInput[] = [
       {
         name: "Real Madrid vs Real Sociedad",
         date: "2025-05-25",
         time: "21:00",
-        location: "Estadio Santiago Bernabéu · Madrid",
+        location: "Estadio Santiago Bernabéu · Madrid",
         purchase_link: "https://seatpick.com/real-madrid-vs-real-sociedad-tickets/event/306224",
         category: "Fútbol",
         price: "Desde 197€",
@@ -26,7 +18,7 @@ async function main() {
         name: "Real Madrid vs RCD Mallorca",
         date: "2025-05-14",
         time: "21:30",
-        location: "Estadio Santiago Bernabéu · Madrid",
+        location: "Estadio Santiago Bernabéu · Madrid",
         purchase_link: "https://seatpick.com/real-madrid-vs-rcd-mallorca-tickets/event/306284",
         category: "Fútbol",
         price: "desde 138€",
@@ -37,7 +29,7 @@ async function main() {
         name: "FC Barcelona vs Villarreal CF",
         date: "2025-05-18",
         time: "17:00",
-        location: "Estadi Olímpic Lluis Companys · Barcelona,Catalonia, España",
+        location: "Estadi Olímpic Lluis Companys · Barcelona,Catalonia, España",
         purchase_link: "https://seatpick.com/fc-barcelona-vs-villarreal-cf-tickets/event/306241?quantity=2",
         category: "Fútbol",
         price: "desde 98€",
@@ -48,7 +40,7 @@ async function main() {
         name: "Athletic Club vs FC Barcelona",
         date: "2025-05-25",
         time: "17:00",
-        location: "Estadio San Mames · Bilbao, Spain",
+        location: "Estadio San Mames · Bilbao, Spain",
         purchase_link: "https://seatpick.com/athletic-bilbao-vs-fc-barcelona-tickets/event/306355?quantity=2",
         category: "Fútbol",
         price: "desde 299€",
@@ -59,7 +51,7 @@ async function main() {
         name: "Atletico Madrid vs Real Betis Balompie",
         date: "2025-05-18",
         time: "17:00",
-        location: "Riyadh Air Metropolitano · Madrid, Madrid, Spain",
+        location: "Riyadh Air Metropolitano · Madrid, Madrid, Spain",
         purchase_link: "https://seatpick.com/atletico-madrid-vs-real-betis-tickets/event/306352?quantity=2",
         category: "Fútbol",
         price: "desde 55€",
@@ -70,7 +62,7 @@ async function main() {
         name: "Girona vs Atletico Madrid",
         date: "2025-05-25",
         time: "17:00",
-        location: "Estadi Montilivi · Girona, Catalonia, Spain",
+        location: "Estadi Montilivi · Girona, Catalonia, Spain",
         purchase_link: "https://seatpick.com/girona-vs-atletico-madrid-tickets/event/306454?quantity=2",
         category: "Fútbol",
         price: "desde 69€",
@@ -255,18 +247,22 @@ async function main() {
       },
     ]
 
-    for (const evento of eventos) {
-      await prisma.event.create({
-        data: evento
-      })
-    }
-
-    console.log('Events created successfully!')
-  } catch (error) {
-    console.error('Error during seed:', error)
-    throw error
+  async function main() {
+    console.log('🌱 Seeding database…');
+  
+    // Limpa em transação
+    await prisma.$transaction([
+      prisma.favorite.deleteMany(),
+      prisma.event.deleteMany(),
+    ]);
+  
+    // Inserção em lote
+    await prisma.event.createMany({
+      data: eventos,
+    });
+  
+    console.log(`✅ ${eventos.length} eventos registrados`);
   }
-}
 
 main()
   .catch((e) => {
@@ -275,4 +271,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect()
-  }) 
+  })
