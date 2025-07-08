@@ -1,15 +1,9 @@
+// This file creates and exports a Prisma client instance
+// It uses a global singleton pattern to prevent multiple client instances in development
 import { PrismaClient } from '@prisma/client';
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+const client = global.prismadb || new PrismaClient();
+if (process.env.NODE_ENV === 'development') global.prismadb = client;
+if (process.env.NODE_ENV === 'production') global.prismadb = client;
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    datasources: { db: { url: process.env.DATABASE_URL } },
-    log: ['error'],
-  });
-
-// cache só fora de production local
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-
-export default prisma;
+export default client;
