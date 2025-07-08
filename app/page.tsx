@@ -8,25 +8,36 @@ import { formatEvent } from '@/app/utils/formatEvent';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
+// async function getEvents() {
+//     try {
+//         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/events`, {
+//             cache: 'no-store'  // This ensures fresh data
+//         });
+//         const data = await response.json();
+        
+//         console.log('Raw API response:', data);
+        
+//         // Make sure we return an array, even if empty
+//         const events = Array.isArray(data) ? data : [];
+//         console.log('Processed events:', events);
+        
+//         return events;
+        
+//     } catch (error) {
+//         console.error('Error fetching events:', error);
+//         return []; // Return empty array on error
+//     }
+// }
+
+import prisma from '@/lib/prismadb';
+
 async function getEvents() {
-    try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/events`, {
-            cache: 'no-store'  // This ensures fresh data
-        });
-        const data = await response.json();
-        
-        console.log('Raw API response:', data);
-        
-        // Make sure we return an array, even if empty
-        const events = Array.isArray(data) ? data : [];
-        console.log('Processed events:', events);
-        
-        return events;
-        
-    } catch (error) {
-        console.error('Error fetching events:', error);
-        return []; // Return empty array on error
-    }
+  try {
+    return await prisma.event.findMany({ orderBy: { date: 'asc' } });
+  } catch (err) {
+    console.error('DB error:', err);
+    return [];
+  }
 }
 
 export default async function Home() {
