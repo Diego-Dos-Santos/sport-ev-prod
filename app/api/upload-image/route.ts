@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import cloudinary from '@/lib/cloudinary';
 
 export async function POST(request: Request) {
     try {
@@ -22,27 +21,38 @@ export async function POST(request: Request) {
             );
         }
 
+        // Convert file to buffer
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        // Ensure uploads directory exists
-        const publicPath = path.join(process.cwd(), 'public', 'uploads');
-        try {
-            await mkdir(publicPath, { recursive: true });
-        } catch (error) {
-            console.error('Error creating directory:', error);
+        let imageUrl;
+        
+        // Check if Cloudinary is configured
+        if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+            // Upload to Cloudinary
+            const result = await new Promise((resolve, reject) => {
+                cloudinary.uploader.upload_stream(
+                    {
+                        folder: 'sport-ev-profiles',
+                        resource_type: 'image',
+                    },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                ).end(buffer);
+            });
+
+            imageUrl = (result as any).secure_url;
+        } else {
+            // Fallback: return base64 for local development
+            const base64 = buffer.toString('base64');
+            const mimeType = file.type;
+            imageUrl = `data:${mimeType};base64,${base64}`;
         }
 
-        // Create unique filename
-        const uniqueFilename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
-        const filePath = path.join(publicPath, uniqueFilename);
-
-        // Write file
-        await writeFile(filePath, buffer);
-
-        // Return the URL path
         return NextResponse.json({ 
-            imageUrl: `/uploads/${uniqueFilename}` 
+            imageUrl: imageUrl
         });
     } catch (error) {
         console.error('Error in upload route:', error);

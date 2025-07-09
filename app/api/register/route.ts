@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import prisma from '@/lib/prismadb';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import cloudinary from '@/lib/cloudinary';
 
 export async function POST(request: Request) {
     try {
@@ -49,26 +48,36 @@ export async function POST(request: Request) {
                     return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
                 }
 
-                const bytes = await profileImage.arrayBuffer();
-                const buffer = Buffer.from(bytes);
+                // Check if Cloudinary is configured
+                if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+                    // Convert file to buffer
+                    const bytes = await profileImage.arrayBuffer();
+                    const buffer = Buffer.from(bytes);
 
-                // Ensure uploads directory exists
-                const publicPath = path.join(process.cwd(), 'public', 'uploads');
-                try {
-                    await mkdir(publicPath, { recursive: true });
-                } catch (error) {
-                    console.error('Error creating directory:', error);
+                    // Upload to Cloudinary
+                    const result = await new Promise((resolve, reject) => {
+                        cloudinary.uploader.upload_stream(
+                            {
+                                folder: 'sport-ev-profiles',
+                                resource_type: 'image',
+                            },
+                            (error, result) => {
+                                if (error) reject(error);
+                                else resolve(result);
+                            }
+                        ).end(buffer);
+                    });
+
+                    // Set the image URL
+                    imageUrl = (result as any).secure_url;
+                } else {
+                    // Fallback: store as base64 for local development
+                    const bytes = await profileImage.arrayBuffer();
+                    const buffer = Buffer.from(bytes);
+                    const base64 = buffer.toString('base64');
+                    const mimeType = profileImage.type;
+                    imageUrl = `data:${mimeType};base64,${base64}`;
                 }
-
-                // Create unique filename
-                const uniqueFilename = `${Date.now()}-${profileImage.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
-                const filePath = path.join(publicPath, uniqueFilename);
-
-                // Write file
-                await writeFile(filePath, buffer);
-
-                // Set the image URL
-                imageUrl = `/uploads/${uniqueFilename}`;
             } catch (uploadError) {
                 console.error('Image upload error:', uploadError);
                 return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
