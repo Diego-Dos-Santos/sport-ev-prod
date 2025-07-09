@@ -75,8 +75,8 @@ const Register = () => {
             console.log('Registration response status:', response.status);
             
             if (response.ok) {
-                const userData = await response.json();
-                console.log('Registration successful:', userData);
+                const responseData = await response.json();
+                console.log('Registration successful:', responseData);
                 
                 // Send welcome email
                 try {

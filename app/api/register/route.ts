@@ -75,6 +75,15 @@ export async function POST(request: Request) {
                     );
                 }
 
+                // Validate file size (max 5MB)
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (profileImage.size > maxSize) {
+                    return NextResponse.json(
+                        { error: 'Image file size must be less than 5MB' }, 
+                        { status: 400 }
+                    );
+                }
+
                 // Check if Cloudinary is configured
                 if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
                     // Convert file to buffer
@@ -98,7 +107,15 @@ export async function POST(request: Request) {
                     // Set the image URL
                     imageUrl = (result as any).secure_url;
                 } else {
-                    // Fallback: store as base64 for local development
+                    // In production, require Cloudinary to be configured
+                    if (process.env.NODE_ENV === 'production') {
+                        return NextResponse.json(
+                            { error: 'Image upload service not configured' }, 
+                            { status: 500 }
+                        );
+                    }
+                    
+                    // Only allow base64 in development
                     const bytes = await profileImage.arrayBuffer();
                     const buffer = Buffer.from(bytes);
                     const base64 = buffer.toString('base64');
@@ -130,7 +147,22 @@ export async function POST(request: Request) {
             }
         });
 
-        return NextResponse.json(user, { status: 201 });
+        // Return minimal response to avoid HTTP/2 protocol errors
+        return NextResponse.json({
+            success: true,
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                image: user.image
+            }
+        }, { 
+            status: 201,
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        });
     } catch (error: any) {
         console.error('Registration error:', error);
         

@@ -25,6 +25,15 @@ export async function POST(request: Request) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
+        // Validate file size (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            return NextResponse.json(
+                { error: 'Image file size must be less than 5MB' },
+                { status: 400 }
+            );
+        }
+
         let imageUrl;
         
         // Check if Cloudinary is configured
@@ -45,14 +54,28 @@ export async function POST(request: Request) {
 
             imageUrl = (result as any).secure_url;
         } else {
-            // Fallback: return base64 for local development
+            // In production, require Cloudinary to be configured
+            if (process.env.NODE_ENV === 'production') {
+                return NextResponse.json(
+                    { error: 'Image upload service not configured' },
+                    { status: 500 }
+                );
+            }
+            
+            // Only allow base64 in development
             const base64 = buffer.toString('base64');
             const mimeType = file.type;
             imageUrl = `data:${mimeType};base64,${base64}`;
         }
 
         return NextResponse.json({ 
+            success: true,
             imageUrl: imageUrl
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
         });
     } catch (error) {
         console.error('Error in upload route:', error);
