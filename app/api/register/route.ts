@@ -19,23 +19,47 @@ export async function POST(request: Request) {
             email = body.email;
             name = body.name;
             password = body.password;
-            // For JSON requests, profileImage would be base64 string
         } else {
-            return NextResponse.json({ error: 'Unsupported content type' }, { status: 415 });
+            return NextResponse.json(
+                { error: 'Unsupported content type' }, 
+                { status: 415 }
+            );
         }
 
+        // Validate required fields
         if (!email || !name || !password) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+            return NextResponse.json(
+                { error: 'Missing required fields: email, name, and password are required' }, 
+                { status: 400 }
+            );
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return NextResponse.json(
+                { error: 'Invalid email format' }, 
+                { status: 400 }
+            );
+        }
+
+        // Validate password length
+        if (password.length < 6) {
+            return NextResponse.json(
+                { error: 'Password must be at least 6 characters long' }, 
+                { status: 400 }
+            );
         }
 
         const existingUser = await prisma.user.findUnique({
-            where: {
-                email
-            }
+            where: { email }
         });
 
         if (existingUser) {
-            return NextResponse.json({ error: 'Email already taken' }, { status: 422 });
+            return NextResponse.json(
+                { error: 'Email already taken' }, 
+                { status: 422 }
+            );
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
@@ -45,7 +69,10 @@ export async function POST(request: Request) {
             try {
                 // Validate file type
                 if (!profileImage.type.startsWith('image/')) {
-                    return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+                    return NextResponse.json(
+                        { error: 'File must be an image' }, 
+                        { status: 400 }
+                    );
                 }
 
                 // Check if Cloudinary is configured
@@ -80,7 +107,10 @@ export async function POST(request: Request) {
                 }
             } catch (uploadError) {
                 console.error('Image upload error:', uploadError);
-                return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
+                return NextResponse.json(
+                    { error: 'Failed to upload image' }, 
+                    { status: 500 }
+                );
             }
         }
 
@@ -100,23 +130,35 @@ export async function POST(request: Request) {
             }
         });
 
-        return NextResponse.json(user);
+        return NextResponse.json(user, { status: 201 });
     } catch (error: any) {
         console.error('Registration error:', error);
         
         // Handle specific Prisma errors
         if (error.code === 'P2002') {
-            return NextResponse.json({ error: 'Email already exists' }, { status: 422 });
+            return NextResponse.json(
+                { error: 'Email already exists' }, 
+                { status: 422 }
+            );
         }
         
         if (error.code === 'P2021') {
-            return NextResponse.json({ error: 'Database table does not exist' }, { status: 500 });
+            return NextResponse.json(
+                { error: 'Database table does not exist' }, 
+                { status: 500 }
+            );
         }
         
         if (error.code === 'P2022') {
-            return NextResponse.json({ error: 'Database column does not exist' }, { status: 500 });
+            return NextResponse.json(
+                { error: 'Database column does not exist' }, 
+                { status: 500 }
+            );
         }
         
-        return NextResponse.json({ error: 'An error occurred during registration' }, { status: 500 });
+        return NextResponse.json(
+            { error: 'An error occurred during registration' }, 
+            { status: 500 }
+        );
     }
 } 

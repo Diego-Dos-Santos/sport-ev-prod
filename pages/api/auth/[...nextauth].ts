@@ -72,6 +72,20 @@ export const authOptions: AuthOptions = {
             return session;
         },
     },
+    // Add proper error handling
+    logger: {
+        error(code, ...message) {
+            console.error(`[NextAuth] Error ${code}:`, ...message);
+        },
+        warn(code, ...message) {
+            console.warn(`[NextAuth] Warning ${code}:`, ...message);
+        },
+        debug(code, ...message) {
+            if (process.env.NODE_ENV === 'development') {
+                console.log(`[NextAuth] Debug ${code}:`, ...message);
+            }
+        },
+    },
 };
 
 const handler = NextAuth(authOptions);
