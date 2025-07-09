@@ -2,32 +2,13 @@ import Navbar from '@/app/components/Navbar';
 import Slideshow from '@/app/components/Slideshow';
 import EventList from '@/app/components/EventList';
 import PubliBanner from '@/app/components/PubliBanner';
+import { getServerSession } from 'next-auth/next';
+import { redirect } from 'next/navigation';
 import Footer from '@/app/components/Footer';
 import { formatEvent } from '@/app/utils/formatEvent';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
-
-// async function getEvents() {
-//     try {
-//         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/events`, {
-//             cache: 'no-store'  // This ensures fresh data
-//         });
-//         const data = await response.json();
-        
-//         console.log('Raw API response:', data);
-        
-//         // Make sure we return an array, even if empty
-//         const events = Array.isArray(data) ? data : [];
-//         console.log('Processed events:', events);
-        
-//         return events;
-        
-//     } catch (error) {
-//         console.error('Error fetching events:', error);
-//         return []; // Return empty array on error
-//     }
-// }
 
 import prisma from '@/lib/prismadb';
 
@@ -41,6 +22,10 @@ async function getEvents() {
 }
 
 export default async function Home() {
+    const session = await getServerSession();
+    if (!session) {
+      redirect('/start');              // redireciona se não logado
+    }
     const rawEvents = await getEvents();
     const events = rawEvents.map(formatEvent);
 
