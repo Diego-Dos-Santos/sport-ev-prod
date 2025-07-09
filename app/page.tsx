@@ -60,7 +60,7 @@ export default async function Home() {
                             />
                         </div>
                     )}
-                    <PubliBanner bannerNumber={1} />
+                    <PubliBanner bannerNumber={1} link='https://www.pentafightwear.com/es'/>
                     {categories.includes('Tenis') && (
                         <div className="px-4 md:px-12">
                             <EventList 
@@ -77,7 +77,7 @@ export default async function Home() {
                             />
                         </div>
                     )}
-                    <PubliBanner bannerNumber={2} />
+                    <PubliBanner bannerNumber={2} link='https://spainbjjtour.smoothcomp.com/en/event/23909' />
                     {categories.includes('Baloncesto') && (
                         <div className="px-4 md:px-12">
                             <EventList 
