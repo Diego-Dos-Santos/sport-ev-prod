@@ -54,6 +54,24 @@ export const authOptions: AuthOptions = {
         strategy: 'jwt' as const,
     },
     secret: process.env.NEXTAUTH_SECRET,
+    callbacks: {
+        async jwt({ token, user, trigger, session }) {
+            if (user) {
+                token.name = user.name;
+                // Don't store image in token to avoid cookie size issues
+            }
+            if (trigger === 'update' && session?.name) {
+                token.name = session.name;
+                // Don't store image in token to avoid cookie size issues
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            session.user.name = token.name as string;
+            // Don't set image from token to avoid cookie size issues
+            return session;
+        },
+    },
 };
 
 const handler = NextAuth(authOptions);

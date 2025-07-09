@@ -20,9 +20,36 @@ const ProfilePage = () => {
     useEffect(() => {
         if (session?.user) {
             setName(session.user.name || '');
-            setSelectedImage(session.user.image || '');
+            // Don't sync image from session since we fetch it from database
         }
     }, [session]);
+
+    // Fetch user profile data from database
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            if (session?.user?.email) {
+                try {
+                    const response = await fetch('/api/user-profile');
+                    if (response.ok) {
+                        const userData = await response.json();
+                        console.log('Fetched user data:', userData);
+                        setName(userData.name || '');
+                        setSelectedImage(userData.image || '');
+                        console.log('Set selected image to:', userData.image);
+                    }
+                } catch (error) {
+                    console.error('Error fetching user profile:', error);
+                }
+            }
+        };
+
+        fetchUserProfile();
+    }, [session?.user?.email]);
+
+    // Debug selectedImage state changes
+    useEffect(() => {
+        console.log('selectedImage state changed to:', selectedImage);
+    }, [selectedImage]);
 
     const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -69,15 +96,18 @@ const ProfilePage = () => {
                 throw new Error('Failed to update profile');
             }
 
-            // Update session with new data
+            // Only update session with name, not image to avoid 431 error
             await update({
-                ...session,
-                user: {
-                    ...session?.user,
-                    name: name,
-                    image: newImage || selectedImage
-                }
+                name: name
             });
+
+            // Refresh user data from database to get updated image
+            const userResponse = await fetch('/api/user-profile');
+            if (userResponse.ok) {
+                const userData = await userResponse.json();
+                setName(userData.name || '');
+                setSelectedImage(userData.image || '');
+            }
 
             if (!newImage) {
                 setIsEditing(false);
@@ -104,9 +134,12 @@ const ProfilePage = () => {
                                         src={selectedImage}
                                         alt="Perfil"
                                         fill
+                                        priority
                                         sizes="(max-width: 768px) 100vw, 128px"
                                         className="rounded-full border-4 border-red-500 neon-effect"
                                         style={{ objectFit: 'cover' }}
+                                        onLoad={() => console.log('Image loaded successfully:', selectedImage)}
+                                        onError={(e) => console.error('Image failed to load:', selectedImage, e)}
                                     />
                                 ) : (
                                     <i className="fa-regular fa-user text-red-500 text-xl"></i>

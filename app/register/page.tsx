@@ -34,20 +34,28 @@ const Register = () => {
         setError('');
 
         try {
-            // Create FormData to handle file upload
-            const formData = new FormData();
-            formData.append('email', email);
-            formData.append('name', name);
-            formData.append('password', password);
+            let response;
+            
             if (profileImage) {
+                // Create FormData to handle file upload
+                const formData = new FormData();
+                formData.append('email', email);
+                formData.append('name', name);
+                formData.append('password', password);
                 formData.append('profileImage', profileImage);
-            }
 
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password })
-            });
+                response = await fetch('/api/register', {
+                    method: 'POST',
+                    body: formData
+                });
+            } else {
+                // Send JSON for registration without image
+                response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+            }
 
             if (response.ok) {
                 // Send welcome email
@@ -65,6 +73,9 @@ const Register = () => {
                 });
                 
                 router.push('/');
+            } else {
+                const errorData = await response.json();
+                setError(errorData.error || 'Registration failed');
             }
         } catch (error: any) {
             setError(error.response?.data?.message || 'An error occurred during registration');
