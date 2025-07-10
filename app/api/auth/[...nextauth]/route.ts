@@ -88,10 +88,10 @@ export const authOptions: AuthOptions = {
     },
     // Add better error handling for client fetch errors
     events: {
-        async signIn({ user, ..._rest }) {
+        async signIn({ user, ..._ }) {
             console.log('[NextAuth] User signed in:', user.email);
         },
-        async signOut({ ..._rest }) {
+        async signOut({ ..._ }) {
             console.log('[NextAuth] User signed out');
         },
     },
