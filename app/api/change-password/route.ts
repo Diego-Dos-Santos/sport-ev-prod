@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import bcrypt from 'bcrypt';
-import { authOptions } from '../../../pages/api/auth/[...nextauth]';
+import { authOptions } from '../auth/[...nextauth]/route';
 
 export async function POST(request: Request) {
     const { PrismaClient } = await import('@prisma/client');

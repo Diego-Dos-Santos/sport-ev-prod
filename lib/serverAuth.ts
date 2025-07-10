@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import prismadb from "@/lib/prismadb";
 import { getServerSession } from "next-auth/next";
 import { Session } from "next-auth";
-import authOptions from "@/pages/api/auth/[...nextauth]";
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 const serverAuth = async (req: NextApiRequest, res: NextApiResponse) => {
     // Get the user's session from the request
