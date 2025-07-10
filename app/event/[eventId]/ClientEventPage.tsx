@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
@@ -26,6 +28,7 @@ interface ClientEventPageProps {
 
 export default function ClientEventPage({ eventId, category }: ClientEventPageProps) {
     const router = useRouter();
+    const { data: session } = useSession();
     const [event, setEvent] = useState<Event | null>(null);
     const [favorites, setFavorites] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -162,16 +165,29 @@ export default function ClientEventPage({ eventId, category }: ClientEventPagePr
                             )}
                             
                             <div className="flex flex-col space-y-4">
-                                <a 
-                                    href={event.purchase_link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-full max-w-md mx-auto md:mx-0 bg-black text-white px-8 py-3 
-                                             rounded-[10px] border-2 border-red-500 hover:bg-red-500 
-                                             hover:shadow-neon transition-all duration-300 text-center"
-                                >
-                                    Comprar entradas
-                                </a>
+                                {session?.user ? (
+                                    // Show purchase button for logged users
+                                    <a 
+                                        href={event.purchase_link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full max-w-md mx-auto md:mx-0 bg-black text-white px-8 py-3 
+                                                 rounded-[10px] border-2 border-red-500 hover:bg-red-500 
+                                                 hover:shadow-neon transition-all duration-300 text-center"
+                                    >
+                                        Comprar entradas
+                                    </a>
+                                ) : (
+                                    // Show login prompt for non-logged users
+                                    <Link
+                                        href="/start"
+                                        className="w-full max-w-md mx-auto md:mx-0 bg-red-700 text-white px-8 py-3 
+                                                 rounded-[10px] border-2 border-red-500 hover:bg-red-800 
+                                                 hover:shadow-neon transition-all duration-300 text-center"
+                                    >
+                                        Inicia Sesión para Comprar
+                                    </Link>
+                                )}
 
                                 <button 
                                     onClick={() => router.back()}

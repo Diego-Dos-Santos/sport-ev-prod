@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import React from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 function useIsMobile(breakpoint = 768) {
     const [isMobile, setIsMobile] = useState(false);
@@ -32,21 +34,28 @@ const Slideshow = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [eventIds, setEventIds] = useState<{ [key: string]: string }>({});
     const [isLoading, setIsLoading] = useState(true);
+    const [hasError, setHasError] = useState(false);
     const isMobile = useIsMobile();
+    const { data: session } = useSession();
 
     useEffect(() => {
         const fetchEventIds = async () => {
             try {
                 const response = await fetch(`/api/events?category=Fútbol`);
-                if (!response.ok) throw new Error('Failed to fetch events');
+                if (!response.ok) {
+                    console.warn('Failed to fetch events, using fallback links');
+                    setHasError(true);
+                    setIsLoading(false);
+                    return;
+                }
                 const events = await response.json();
                 
                 // Find the specific events we need
                 const realMadridEvent = events.find((event: any) => 
-                    event.name.includes('Real Madrid vs Real Sociedad')
+                    event.name && event.name.includes('Real Madrid vs Real Sociedad')
                 );
                 const barcelonaEvent = events.find((event: any) => 
-                    event.name.includes('Athletic Club vs FC Barcelona')
+                    event.name && event.name.includes('Athletic Club vs FC Barcelona')
                 );
                 
                 setEventIds({
@@ -55,14 +64,15 @@ const Slideshow = () => {
                 });
                 setIsLoading(false);
             } catch (error) {
-                console.error('Error fetching event IDs:', error);
+                console.warn('Error fetching event IDs, using fallback links:', error);
+                setHasError(true);
                 setIsLoading(false);
             }
         };
         fetchEventIds();
     }, []);
 
-    // Update the events array to use the fetched IDs
+    // Update the events array to use the fetched IDs or fallback links
     const events: Event[] = [
         {
             imageDesktop: '/images/slide-banners/RealMadridRealSociedad-sliderBannerDesktop.png',
@@ -70,7 +80,7 @@ const Slideshow = () => {
             title: 'Real Madrid vs Real Sociedad',
             venue: 'Estadio Santiago Bernabéu',
             date: '25 de Mayo 2025 - 21:00',
-            purchase_link: isLoading ? '#' : `/event/${eventIds['Real Madrid vs Real Sociedad']}?category=Fútbol`
+            purchase_link: isLoading ? '#' : (hasError || !eventIds['Real Madrid vs Real Sociedad'] ? '#' : `/event/${eventIds['Real Madrid vs Real Sociedad']}?category=Fútbol`)
         },
         {
             imageDesktop: '/images/slide-banners/AthleticBarcelona-sliderBannerDesktop.png',
@@ -78,7 +88,7 @@ const Slideshow = () => {
             title: 'Athletic Club vs FC Barcelona',
             venue: 'Estadio San Mames · Bilbao, Spain',
             date: '25 de Mayo 2025 - 17:00',
-            purchase_link: isLoading ? '#' : `/event/${eventIds['Athletic Club vs FC Barcelona']}?category=Fútbol`
+            purchase_link: isLoading ? '#' : (hasError || !eventIds['Athletic Club vs FC Barcelona'] ? '#' : `/event/${eventIds['Athletic Club vs FC Barcelona']}?category=Fútbol`)
         }
     ];
 
@@ -106,6 +116,13 @@ const Slideshow = () => {
         setCurrentIndex((prevIndex) => 
             prevIndex === events.length - 1 ? 0 : prevIndex + 1
         );
+    };
+
+    const handlePurchaseClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        if (isLoading || hasError || events[currentIndex].purchase_link === '#') {
+            e.preventDefault();
+            return;
+        }
     };
 
     return (
@@ -140,14 +157,30 @@ const Slideshow = () => {
                             <p className="text-lg md:text-xl text-white mb-6 text-shadow-neon">
                                 {events[currentIndex].date}
                             </p>
-                            <a
-                                href={events[currentIndex].purchase_link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-black text-white px-8 py-3 rounded-[10px] border-2 border-red-500 hover:bg-red-500 hover:shadow-neon transition-all duration-300 inline-block"
-                            >
-                                Comprar Entradas
-                            </a>
+                            {session?.user ? (
+                                // Show purchase button for logged users
+                                <a
+                                    href={events[currentIndex].purchase_link}
+                                    onClick={handlePurchaseClick}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`px-8 py-3 rounded-[10px] border-2 border-red-500 transition-all duration-300 inline-block ${
+                                        isLoading || hasError || events[currentIndex].purchase_link === '#'
+                                            ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                                            : 'bg-black text-white hover:bg-red-500 hover:shadow-neon'
+                                    }`}
+                                >
+                                    {isLoading ? 'Cargando...' : 'Comprar Entradas'}
+                                </a>
+                            ) : (
+                                // Show login prompt for non-logged users
+                                <Link
+                                    href="/start"
+                                    className="bg-red-700 text-white px-8 py-3 rounded-[10px] border-2 border-red-500 hover:bg-red-800 hover:shadow-neon transition-all duration-300 inline-block"
+                                >
+                                    Inicia Sesión para Comprar
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>

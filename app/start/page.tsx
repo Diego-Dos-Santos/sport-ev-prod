@@ -60,7 +60,8 @@ const Start = () => {
                         alt="sportEv-logo" 
                         width={240} 
                         height={96}
-                        className="h-[6rem]"
+                        className="h-[6rem] cursor-pointer"
+                        onClick={() => router.push('/')}
                     />
                 </nav>
                 <div className="loginPage flex justify-center pb-[20rem]">

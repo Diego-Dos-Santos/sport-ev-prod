@@ -2,8 +2,6 @@ import Navbar from '@/app/components/Navbar';
 import Slideshow from '@/app/components/Slideshow';
 import EventList from '@/app/components/EventList';
 import PubliBanner from '@/app/components/PubliBanner';
-import { getServerSession } from 'next-auth/next';
-import { redirect } from 'next/navigation';
 import Footer from '@/app/components/Footer';
 import { formatEvent } from '@/app/utils/formatEvent';
 
@@ -22,10 +20,6 @@ async function getEvents() {
 }
 
 export default async function Home() {
-    const session = await getServerSession();
-    if (!session) {
-      redirect('/start');
-    }
     const rawEvents = await getEvents();
     const events = rawEvents.map(formatEvent);
 

@@ -20,6 +20,27 @@ export const ProfileMenu = () => {
         return fullName.split(' ')[0] || fullName;
     };
 
+    // If user is not authenticated, show login/register options
+    if (!session?.user) {
+        return (
+            <div className="flex flex-row items-center gap-4">
+                <Link 
+                    href="/start" 
+                    className="text-white text-sm hover:text-red-500 transition-colors"
+                >
+                    Iniciar Sesión
+                </Link>
+                <Link 
+                    href="/register" 
+                    className="bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-800 transition-colors"
+                >
+                    Registrarse
+                </Link>
+            </div>
+        );
+    }
+
+    // If user is authenticated, show profile menu
     return (
         <Link href="/profile" className="flex flex-row items-center gap-2 cursor-pointer">
             <p className="text-white text-sm">Hola, {session?.user?.name ? getFirstName(session.user.name) : 'Usuario'}</p>
