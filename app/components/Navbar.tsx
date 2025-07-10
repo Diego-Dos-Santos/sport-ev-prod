@@ -83,30 +83,54 @@ const Navbar = () => {
 const MobileMenu = () => {
     const { data: session } = useSession();
     
+    // Extract first name from full name
+    const getFirstName = (fullName: string) => {
+        return fullName.split(' ')[0] || fullName;
+    };
+    
     return (
         <div className="bg-zinc-900 bg-opacity-90 w-full p-4">
-            {/* Profile Section */}
+            {/* Profile Section or Login/Register */}
             <div className="flex justify-center mb-6 border-b border-gray-700 pb-4">
-                <div className="scale-125">
-                    <Link href="/profile" className="flex flex-row items-center gap-2 cursor-pointer">
-                        <p className="text-white text-sm">Hola, {session?.user?.name || 'Usuario'}</p>
-                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-red-500 flex items-center justify-center bg-zinc-800">
-                            {session?.user?.image ? (
-                                <Image
-                                    src={session.user.image}
-                                    alt="Perfil"
-                                    width={40}
-                                    height={40}
-                                    sizes="40px"
-                                    style={{ objectFit: 'cover' }}
-                                    priority
-                                />
-                            ) : (
-                                <i className="fa-regular fa-user text-red-500 text-xl"></i>
-                            )}
-                        </div>
-                    </Link>
-                </div>
+                {session?.user ? (
+                    // Show profile for authenticated users
+                    <div className="scale-125">
+                        <Link href="/profile" className="flex flex-row items-center gap-2 cursor-pointer">
+                            <p className="text-white text-sm">Hola, {session?.user?.name ? getFirstName(session.user.name) : 'Usuario'}</p>
+                            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-red-500 flex items-center justify-center bg-zinc-800">
+                                {session?.user?.image ? (
+                                    <Image
+                                        src={session.user.image}
+                                        alt="Perfil"
+                                        width={40}
+                                        height={40}
+                                        sizes="40px"
+                                        style={{ objectFit: 'cover' }}
+                                        priority
+                                    />
+                                ) : (
+                                    <i className="fa-regular fa-user text-red-500 text-xl"></i>
+                                )}
+                            </div>
+                        </Link>
+                    </div>
+                ) : (
+                    // Show login/register for non-authenticated users
+                    <div className="flex flex-col items-center gap-3">
+                        <Link 
+                            href="/start" 
+                            className="text-white text-sm hover:text-red-500 transition-colors"
+                        >
+                            Iniciar Sesión
+                        </Link>
+                        <Link 
+                            href="/register" 
+                            className="bg-red-700 text-white px-4 py-2 rounded-md hover:bg-red-800 transition-colors"
+                        >
+                            Registrarse
+                        </Link>
+                    </div>
+                )}
             </div>
 
             {/* Navigation Items */}
@@ -115,7 +139,6 @@ const MobileMenu = () => {
                 <NavbarItem label="Mis eventos" />
                 <NavbarItem label="Próximos eventos" />
                 <NavbarItem label="Cerrar sesión" />
-                
             </div>
         </div>
     );
