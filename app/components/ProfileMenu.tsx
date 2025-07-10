@@ -15,9 +15,14 @@ export const ProfileMenu = () => {
         }
     }, [session?.user, update]);
 
+    // Extract first name from full name
+    const getFirstName = (fullName: string) => {
+        return fullName.split(' ')[0] || fullName;
+    };
+
     return (
         <Link href="/profile" className="flex flex-row items-center gap-2 cursor-pointer">
-            <p className="text-white text-sm">Hola, {session?.user?.name || 'Usuario'}</p>
+            <p className="text-white text-sm">Hola, {session?.user?.name ? getFirstName(session.user.name) : 'Usuario'}</p>
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-red-500 flex items-center justify-center bg-zinc-800">
                 {session?.user?.image ? (
                     <Image

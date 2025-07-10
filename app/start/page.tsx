@@ -28,14 +28,16 @@ const Start = () => {
             });
 
             if (result?.error) {
-                if (result.error === 'Email does not exist') {
+                if (result.error === 'El correo electrónico no existe') {
                     setError('El correo electrónico no existe');
-                } else if (result.error === 'Incorrect password') {
+                } else if (result.error === 'Contraseña incorrecta') {
                     setError(
                         <div className="mt-2 text-red-500 text-sm text-center animate-pulse">
                             Contraseña incorrecta
                         </div>
                     );
+                } else if (result.error === 'Email y contraseña requeridos') {
+                    setError('Email y contraseña requeridos');
                 } else {
                     setError('Ocurrió un error al iniciar sesión');
                 }

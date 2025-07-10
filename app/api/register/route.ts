@@ -21,7 +21,7 @@ export async function POST(request: Request) {
             password = body.password;
         } else {
             return NextResponse.json(
-                { error: 'Unsupported content type' }, 
+                { error: 'Tipo de contenido no soportado' }, 
                 { status: 415 }
             );
         }
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         // Validate required fields
         if (!email || !name || !password) {
             return NextResponse.json(
-                { error: 'Missing required fields: email, name, and password are required' }, 
+                { error: 'Faltan campos requeridos: email, nombre y contraseña son obligatorios' }, 
                 { status: 400 }
             );
         }
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return NextResponse.json(
-                { error: 'Invalid email format' }, 
+                { error: 'Formato de email inválido' }, 
                 { status: 400 }
             );
         }
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         // Validate password length
         if (password.length < 6) {
             return NextResponse.json(
-                { error: 'Password must be at least 6 characters long' }, 
+                { error: 'La contraseña debe tener al menos 6 caracteres' }, 
                 { status: 400 }
             );
         }
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
         if (existingUser) {
             return NextResponse.json(
-                { error: 'Email already taken' }, 
+                { error: 'El correo electrónico ya está en uso' }, 
                 { status: 422 }
             );
         }
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
                 // Validate file type
                 if (!profileImage.type.startsWith('image/')) {
                     return NextResponse.json(
-                        { error: 'File must be an image' }, 
+                        { error: 'El archivo debe ser una imagen' }, 
                         { status: 400 }
                     );
                 }
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
                 const maxSize = 5 * 1024 * 1024; // 5MB
                 if (profileImage.size > maxSize) {
                     return NextResponse.json(
-                        { error: 'Image file size must be less than 5MB' }, 
+                        { error: 'El tamaño del archivo de imagen debe ser menor a 5MB' }, 
                         { status: 400 }
                     );
                 }
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
                     // In production, require Cloudinary to be configured
                     if (process.env.NODE_ENV === 'production') {
                         return NextResponse.json(
-                            { error: 'Image upload service not configured' }, 
+                            { error: 'Servicio de carga de imágenes no configurado' }, 
                             { status: 500 }
                         );
                     }
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
             } catch (uploadError) {
                 console.error('Image upload error:', uploadError);
                 return NextResponse.json(
-                    { error: 'Failed to upload image' }, 
+                    { error: 'Error al cargar la imagen' }, 
                     { status: 500 }
                 );
             }
@@ -169,27 +169,13 @@ export async function POST(request: Request) {
         // Handle specific Prisma errors
         if (error.code === 'P2002') {
             return NextResponse.json(
-                { error: 'Email already exists' }, 
+                { error: 'El correo electrónico ya existe' }, 
                 { status: 422 }
             );
         }
-        
-        if (error.code === 'P2021') {
-            return NextResponse.json(
-                { error: 'Database table does not exist' }, 
-                { status: 500 }
-            );
-        }
-        
-        if (error.code === 'P2022') {
-            return NextResponse.json(
-                { error: 'Database column does not exist' }, 
-                { status: 500 }
-            );
-        }
-        
+         
         return NextResponse.json(
-            { error: 'An error occurred during registration' }, 
+            { error: 'Ocurrió un error durante el registro' }, 
             { status: 500 }
         );
     }

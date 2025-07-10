@@ -24,14 +24,14 @@ async function getEvents() {
 export default async function Home() {
     const session = await getServerSession();
     if (!session) {
-      redirect('/start');              // redireciona se não logado
+      redirect('/start');
     }
     const rawEvents = await getEvents();
     const events = rawEvents.map(formatEvent);
 
     if (!Array.isArray(events)) {
         console.error('Events is not an array:', events);
-        return <div>Error loading events</div>;
+        return <div>Error al cargar eventos</div>;
     }
 
     const categories = [...new Set(events.map((event: { category: string }) => event.category))];
@@ -88,7 +88,7 @@ export default async function Home() {
                     )}
                 </>
             ) : (
-                <div className="text-center text-white py-10">No events available</div>
+                <div className="text-center text-white py-10">No hay eventos disponibles</div>
             )}
             <Footer />
         </main>

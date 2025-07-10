@@ -10,6 +10,7 @@ import Link from 'next/link';
 const Register = () => {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
+    const [lastname, setLastName] = useState('');
     const [password, setPassword] = useState('');
     const [profileImage, setProfileImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -34,17 +35,20 @@ const Register = () => {
         setError('');
 
         // Validate form data
-        if (!email || !name || !password) {
-            setError('Please fill in all required fields');
+        if (!email || !name || !lastname || !password) {
+            setError('Por favor completa todos los campos requeridos');
             setIsLoading(false);
             return;
         }
 
         if (password.length < 6) {
-            setError('Password must be at least 6 characters long');
+            setError('La contraseña debe tener al menos 6 caracteres');
             setIsLoading(false);
             return;
         }
+
+        // Combine name and apellido for the full name
+        const fullName = `${name} ${lastname}`.trim();
 
         try {
             let response;
@@ -53,7 +57,7 @@ const Register = () => {
                 // Create FormData to handle file upload
                 const formData = new FormData();
                 formData.append('email', email);
-                formData.append('name', name);
+                formData.append('name', fullName);
                 formData.append('password', password);
                 formData.append('profileImage', profileImage);
 
@@ -68,7 +72,7 @@ const Register = () => {
                 response = await fetch('/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
+                    body: JSON.stringify({ name: fullName, email, password })
                 });
             }
 
@@ -83,7 +87,7 @@ const Register = () => {
                     await fetch('/api/welcome-email', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email, name })
+                        body: JSON.stringify({ email, name: fullName })
                     });
                 } catch (emailError) {
                     console.error('Welcome email error:', emailError);
@@ -100,18 +104,18 @@ const Register = () => {
                 console.log('Sign in result:', signInResult);
                 
                 if (signInResult?.error) {
-                    setError('Registration successful but login failed. Please try logging in manually.');
+                    setError('Registro exitoso pero el inicio de sesión falló. Por favor intenta iniciar sesión manualmente.');
                 } else {
                     router.push('/');
                 }
             } else {
                 const errorData = await response.json();
                 console.error('Registration failed:', errorData);
-                setError(errorData.error || `Registration failed with status ${response.status}`);
+                setError(errorData.error || `El registro falló con estado ${response.status}`);
             }
         } catch (error: any) {
             console.error('Registration error:', error);
-            setError(error.message || 'An error occurred during registration');
+            setError(error.message || 'Ocurrió un error durante el registro');
         } finally {
             setIsLoading(false);
         }
@@ -168,6 +172,15 @@ const Register = () => {
                                 type='text'
                                 value={name}
                             />
+
+                            <Input 
+                                label='Apellido'
+                                onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setLastName(ev.target.value)}
+                                id='apellido'
+                                type='text'
+                                value={lastname}
+                            />
+
                             <Input 
                                 label='Correo electrónico'
                                 onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setEmail(ev.target.value)}
