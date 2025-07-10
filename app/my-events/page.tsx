@@ -1,6 +1,6 @@
 import EventList from '@/app/components/EventList';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import prismadb from '@/lib/prismadb';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
