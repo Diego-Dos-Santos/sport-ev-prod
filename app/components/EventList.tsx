@@ -6,6 +6,7 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import { FaHeart, FaRegHeart, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 interface Event {
     id: string;
@@ -31,21 +32,28 @@ const EventList: React.FC<EventListProps> = ({ data, category, isMyEvents = fals
     const sliderRef = useRef<HTMLDivElement>(null);
     const [favorites, setFavorites] = useState<string[]>([]);
     const router = useRouter();
+    const { data: session } = useSession();
 
     // Fetch favorite status when component mounts
     useEffect(() => {
         const fetchFavorites = async () => {
+            if (!session?.user?.email) {
+                setFavorites([]);
+                return;
+            }
+
             try {
                 const response = await axios.get('/api/favorites');
                 const favoriteIds = response.data.map((fav: any) => fav.eventId);
                 setFavorites(favoriteIds);
             } catch (error) {
-                console.log(error);
+                console.warn('Error fetching favorites:', error);
+                setFavorites([]);
             }
         };
 
         fetchFavorites();
-    }, []);
+    }, [session?.user?.email]);
 
     const startDragging = (e: React.MouseEvent<HTMLDivElement>) => {
         setIsDragging(true);
@@ -69,16 +77,16 @@ const EventList: React.FC<EventListProps> = ({ data, category, isMyEvents = fals
 
     const removeFavorite = useCallback(async (eventId: string) => {
         try {
-          await axios.delete('/api/favorites', { data: { eventId } });
-          setFavorites(prev => prev.filter(id => id !== eventId));
-      
-          if (isMyEvents) {
-            router.refresh();
-          }
+            await axios.delete('/api/favorites', { data: { eventId } });
+            setFavorites(prev => prev.filter(id => id !== eventId));
+        
+            if (isMyEvents) {
+                router.refresh();
+            }
         } catch (error) {
-          console.log(error);
+            console.log(error);
         }
-      }, [isMyEvents, router]);
+    }, [isMyEvents, router]);
       
     const toggleFavorite = useCallback(async (eventId: string) => {
         try {
@@ -134,7 +142,7 @@ const EventList: React.FC<EventListProps> = ({ data, category, isMyEvents = fals
                                 className="object-cover rounded-[4px]"
                                 sizes="220px"
                             />
-                            {!isMyEvents ? (
+                            {session?.user?.email && !isMyEvents && (
                                 <button 
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -144,12 +152,14 @@ const EventList: React.FC<EventListProps> = ({ data, category, isMyEvents = fals
                                              text-white hover:scale-110 transition-transform
                                              bg-black bg-opacity-50 rounded-full"
                                 >
-                                    {favorites.includes(event.id) 
-                                        ? <FaHeart className="text-red-500" size={20} />
-                                        : <FaRegHeart size={20} />
-                                    }
+                                    {favorites.includes(event.id) ? (
+                                        <FaHeart className="text-red-500" size={20} />
+                                    ) : (
+                                        <FaRegHeart size={20} />
+                                    )}
                                 </button>
-                            ) : (
+                            )}
+                            {isMyEvents && session?.user?.email && (
                                 <button 
                                     onClick={(e) => {
                                         e.stopPropagation();

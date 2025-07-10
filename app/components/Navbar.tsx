@@ -13,6 +13,7 @@ const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const router = useRouter();
+    const { data: session } = useSession();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -46,7 +47,7 @@ const Navbar = () => {
                     {/* Desktop Menu */}
                     <div className="flex-row ml-8 gap-7 hidden lg:flex">
                         <NavbarItem label="Sobre nosotros" />
-                        <NavbarItem label="Mis eventos" />
+                        {session?.user && <NavbarItem label="Mis eventos" />}
                         <NavbarItem label="Próximos eventos" />
                         <NavbarItem label="Cerrar sesión" />
                     </div>
@@ -136,7 +137,7 @@ const MobileMenu = () => {
             {/* Navigation Items */}
             <div className="space-y-4">
                 <NavbarItem label="Sobre nosotros" />
-                <NavbarItem label="Mis eventos" />
+                {session?.user && <NavbarItem label="Mis eventos" />}
                 <NavbarItem label="Próximos eventos" />
                 <NavbarItem label="Cerrar sesión" />
             </div>

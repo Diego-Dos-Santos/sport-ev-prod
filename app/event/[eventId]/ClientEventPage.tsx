@@ -28,7 +28,7 @@ interface ClientEventPageProps {
 
 export default function ClientEventPage({ eventId, category }: ClientEventPageProps) {
     const router = useRouter();
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const [event, setEvent] = useState<Event | null>(null);
     const [favorites, setFavorites] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -68,20 +68,31 @@ export default function ClientEventPage({ eventId, category }: ClientEventPagePr
 
     useEffect(() => {
         const fetchFavorites = async () => {
+            // Only fetch if user is authenticated and not loading
+            if (status === 'loading') {
+                return; // Wait for session to load
+            }
+            
+            if (!session?.user?.email) {
+                setFavorites([]); // Clear favorites for non-authenticated users
+                return;
+            }
+
             try {
                 const response = await axios.get('/api/favorites');
                 const favoriteIds = response.data.map((fav: any) => fav.eventId);
                 setFavorites(favoriteIds);
             } catch (error) {
-                console.error('Error fetching favorites:', error);
+                console.warn('Error fetching favorites:', error);
+                setFavorites([]); // Set empty array on error
             }
         };
 
         fetchFavorites();
-    }, []);
+    }, [session?.user?.email, status]);
 
     const toggleFavorite = async () => {
-        if (!event) return;
+        if (!event || !session?.user?.email) return;
 
         try {
             if (favorites.includes(event.id)) {
@@ -92,7 +103,7 @@ export default function ClientEventPage({ eventId, category }: ClientEventPagePr
                 setFavorites(prev => [...prev, event.id]);
             }
         } catch (error) {
-            console.error(error)
+            console.error('Error toggling favorite:', error);
         }
     };
 
@@ -133,18 +144,20 @@ export default function ClientEventPage({ eventId, category }: ClientEventPagePr
                                 fill
                                 className="object-cover rounded-lg"
                             />
-                            {/* Favorite Button */}
-                            <button 
-                                onClick={toggleFavorite}
-                                className="absolute top-4 right-4 z-10 p-2 
-                                         text-white hover:scale-110 transition-transform
-                                         bg-black bg-opacity-50 rounded-full"
-                            >
-                                {favorites.includes(event.id) 
-                                    ? <FaHeart className="text-red-500" size={24} />
-                                    : <FaRegHeart size={24} />
-                                }
-                            </button>
+                            {/* Favorite Button - Only show for authenticated users */}
+                            {session?.user && (
+                                <button 
+                                    onClick={toggleFavorite}
+                                    className="absolute top-4 right-4 z-10 p-2 
+                                             text-white hover:scale-110 transition-transform
+                                             bg-black bg-opacity-50 rounded-full"
+                                >
+                                    {favorites.includes(event.id) 
+                                        ? <FaHeart className="text-red-500" size={24} />
+                                        : <FaRegHeart size={24} />
+                                    }
+                                </button>
+                            )}
                         </div>
 
                         {/* Right side - Event Details */}

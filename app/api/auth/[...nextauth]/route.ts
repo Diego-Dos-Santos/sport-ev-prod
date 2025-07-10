@@ -86,8 +86,17 @@ export const authOptions: AuthOptions = {
             }
         },
     },
+    // Add better error handling for client fetch errors
+    events: {
+        async signIn({ user, account, profile, isNewUser }) {
+            console.log('[NextAuth] User signed in:', user.email);
+        },
+        async signOut({ session, token }) {
+            console.log('[NextAuth] User signed out');
+        },
+    },
 };
 
 const handler = NextAuth(authOptions);
 
-export default handler;
+export { handler as GET, handler as POST }; 

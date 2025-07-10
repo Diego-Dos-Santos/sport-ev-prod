@@ -1,6 +1,6 @@
 import EventList from '@/app/components/EventList';
 import { getServerSession } from 'next-auth';
-import authOptions from '@/pages/api/auth/[...nextauth]';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prismadb from '@/lib/prismadb';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
@@ -21,17 +21,34 @@ export default async function MyEventsPage() {
         }
     });
 
-    // Fetch details for each favorited event
-    const favoriteEvents = await Promise.all(
-        user?.favorites.map(async (fav: { eventId: string }) => {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/events?id=${fav.eventId}`);
-            const eventData = await response.json();
-            return eventData;
-        }) || []
-    );
+    if (!user || !user.favorites.length) {
+        return (
+            <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <main className="flex-grow mt-20 mb-20">
+                    <div className="max-w-6xl mx-auto px-4">
+                        <h1 className="text-3xl font-bold text-white mb-8">Mis Eventos</h1>
+                        <p className="text-gray-300 text-lg">No tienes eventos favoritos aún.</p>
+                    </div>
+                </main>
+                <Footer />
+            </div>
+        );
+    }
 
-    const rawEvents = await favoriteEvents;
-    const events = rawEvents.map(formatEvent);
+    // Get all favorite event IDs
+    const favoriteEventIds = user.favorites.map((fav: { eventId: string }) => fav.eventId);
+
+    // Fetch all events at once and filter for favorites
+    const allEvents = await prismadb.event.findMany({
+        where: {
+            id: {
+                in: favoriteEventIds
+            }
+        }
+    });
+
+    const events = allEvents.map(formatEvent);
 
     return (
         <div className="flex flex-col min-h-screen">
