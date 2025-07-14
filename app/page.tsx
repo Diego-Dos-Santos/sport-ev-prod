@@ -63,11 +63,11 @@ export default async function Home() {
                             />
                         </div>
                     )}
-                    {categories.includes('Boxeo') && (
+                    {categories.includes('F1') && (
                         <div className="px-4 md:px-12">
                             <EventList 
-                                data={events.filter(event => event.category === 'Boxeo')}
-                                category="Boxeo" 
+                                data={events.filter(event => event.category === 'F1')}
+                                category="F1" 
                             />
                         </div>
                     )}

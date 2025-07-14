@@ -75,20 +75,20 @@ const Slideshow = () => {
     // Update the events array to use the fetched IDs or fallback links
     const events: Event[] = [
         {
-            imageDesktop: '/images/slide-banners/RealMadridRealSociedad-sliderBannerDesktop.png',
-            imageMobile: '/images/slide-banners/RealMadridRealSociedad-sliderBannerMobile.png',
-            title: 'Real Madrid vs Real Sociedad',
+            imageDesktop: '/images/slide-banners/RealMadridOsasuna-sliderBannerDesktop.png',
+            imageMobile: '/images/slide-banners/RealMadridOsasuna-sliderBannerMobile.png',
+            title: 'Real Madrid vs Osasuna',
             venue: 'Estadio Santiago Bernabéu',
-            date: '25 de Mayo 2025 - 21:00',
-            purchase_link: isLoading ? '#' : (hasError || !eventIds['Real Madrid vs Real Sociedad'] ? '#' : `/event/${eventIds['Real Madrid vs Real Sociedad']}?category=Fútbol`)
+            date: '19 de Agosto de 2025 - 21:00',
+            purchase_link: isLoading ? '#' : (hasError || !eventIds['Real Madrid vs Osasuna'] ? '#' : `/event/${eventIds['Real Madrid vs Osasuna']}?category=Fútbol`)
         },
         {
-            imageDesktop: '/images/slide-banners/AthleticBarcelona-sliderBannerDesktop.png',
-            imageMobile: '/images/slide-banners/AthleticBarcelona-sliderBannerMobile.png',
-            title: 'Athletic Club vs FC Barcelona',
-            venue: 'Estadio San Mames · Bilbao, Spain',
-            date: '25 de Mayo 2025 - 17:00',
-            purchase_link: isLoading ? '#' : (hasError || !eventIds['Athletic Club vs FC Barcelona'] ? '#' : `/event/${eventIds['Athletic Club vs FC Barcelona']}?category=Fútbol`)
+            imageDesktop: '/images/slide-banners/LevanteBarcelona-sliderBannerDesktop.png',
+            imageMobile: '/images/slide-banners/LevanteBarcelona-sliderBannerMobile.png',
+            title: 'Levante UD vs FC Barcelona',
+            venue: 'Estadi Ciutat de Valencia · Valencia',
+            date: '24 de Agosto 2025 - 17:00',
+            purchase_link: isLoading ? '#' : (hasError || !eventIds['Levante UD vs FC Barcelona'] ? '#' : `/event/${eventIds['Levante UD vs FC Barcelona']}?category=Fútbol`)
         }
     ];
 

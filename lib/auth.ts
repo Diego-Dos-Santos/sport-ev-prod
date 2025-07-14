@@ -47,17 +47,19 @@ export const authOptions: AuthOptions = {
         })
     ],
     pages: {
-        signIn: '/login',
+        signIn: '/start',
     },
     debug: process.env.NODE_ENV === 'development',
     session: {
         strategy: 'jwt' as const,
+        maxAge: 30 * 24 * 60 * 60, // 30 days
     },
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
         async jwt({ token, user, trigger, session }) {
             if (user) {
                 token.name = user.name;
+                token.email = user.email;
                 // Don't store image in token to avoid cookie size issues
             }
             if (trigger === 'update' && session?.name) {
@@ -67,8 +69,11 @@ export const authOptions: AuthOptions = {
             return token;
         },
         async session({ session, token }) {
-            session.user.name = token.name as string;
-            // Don't set image from token to avoid cookie size issues
+            if (token) {
+                session.user.name = token.name as string;
+                session.user.email = token.email as string;
+                // Don't set image from token to avoid cookie size issues
+            }
             return session;
         },
     },
