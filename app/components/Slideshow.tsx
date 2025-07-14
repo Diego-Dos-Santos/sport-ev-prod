@@ -41,26 +41,33 @@ const Slideshow = () => {
     useEffect(() => {
         const fetchEventIds = async () => {
             try {
-                const response = await fetch(`/api/events?category=Fútbol`);
-                if (!response.ok) {
-                    console.warn('Failed to fetch events, using fallback links');
-                    setHasError(true);
-                    setIsLoading(false);
-                    return;
-                }
-                const events = await response.json();
+                // Fetch events from multiple categories
+                const [futbolResponse, mmaResponse] = await Promise.all([
+                    fetch(`/api/events?category=Fútbol`),
+                    fetch(`/api/events?category=MMA`)
+                ]);
+                
+                const futbolEvents = futbolResponse.ok ? await futbolResponse.json() : [];
+                const mmaEvents = mmaResponse.ok ? await mmaResponse.json() : [];
+                
+                // Combine all events
+                const allEvents = [...futbolEvents, ...mmaEvents];
                 
                 // Find the specific events we need
-                const realMadridEvent = events.find((event: any) => 
-                    event.name && event.name.includes('Real Madrid vs Real Sociedad')
+                const realMadridEvent = allEvents.find((event: any) => 
+                    event.name && event.name.includes('Real Madrid vs Osasuna')
                 );
-                const barcelonaEvent = events.find((event: any) => 
-                    event.name && event.name.includes('Athletic Club vs FC Barcelona')
+                const barcelonaEvent = allEvents.find((event: any) => 
+                    event.name && event.name.includes('Levante UD vs FC Barcelona')
+                );
+                const wowEvent = allEvents.find((event: any) => 
+                    event.name && event.name.includes('WOW 21 - Marbella')
                 );
                 
                 setEventIds({
-                    'Real Madrid vs Real Sociedad': realMadridEvent?.id || '',
-                    'Athletic Club vs FC Barcelona': barcelonaEvent?.id || ''
+                    'Real Madrid vs Osasuna': realMadridEvent?.id || '',
+                    'Levante UD vs FC Barcelona': barcelonaEvent?.id || '',
+                    'WOW 21 - Marbella': wowEvent?.id || ''
                 });
                 setIsLoading(false);
             } catch (error) {
@@ -89,6 +96,14 @@ const Slideshow = () => {
             venue: 'Estadi Ciutat de Valencia · Valencia',
             date: '24 de Agosto 2025 - 17:00',
             purchase_link: isLoading ? '#' : (hasError || !eventIds['Levante UD vs FC Barcelona'] ? '#' : `/event/${eventIds['Levante UD vs FC Barcelona']}?category=Fútbol`)
+        },
+        {
+            imageDesktop: '/images/slide-banners/WOW21-slideBannerDesktop.png',
+            imageMobile: '/images/slide-banners/WOW21-slideBannerMobile.png',
+            title: 'WOW 21 - Marbella',
+            venue: 'Starlite Marbella - Marbella',
+            date: '09 de Agosto 2025 - 21:00',
+            purchase_link: isLoading ? '#' : (hasError || !eventIds['WOW 21 - Marbella'] ? '#' : `/event/${eventIds['WOW 21 - Marbella']}?category=MMA`)
         }
     ];
 
@@ -139,7 +154,7 @@ const Slideshow = () => {
                         fill
                         sizes="100vw"
                         priority
-                        className="object-contain md:object-cover transition-opacity duration-500"
+                        className="object-cover transition-opacity duration-500"
                         style={{ objectPosition: 'center center' }}
                     />
                 </div>
