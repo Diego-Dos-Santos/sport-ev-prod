@@ -5,17 +5,6 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prismadb from '@/lib/prismadb';
 import bcrypt from 'bcrypt';
 
-// Get the base URL for the current environment
-const getBaseUrl = () => {
-    if (process.env.NEXTAUTH_URL) {
-        return process.env.NEXTAUTH_URL;
-    }
-    if (process.env.VERCEL_URL) {
-        return `https://${process.env.VERCEL_URL}`;
-    }
-    return 'http://localhost:3005';
-};
-
 export const authOptions: AuthOptions = {
     adapter: PrismaAdapter(prismadb),
     providers: [
