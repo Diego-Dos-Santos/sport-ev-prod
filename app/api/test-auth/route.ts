@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { authOptions } from '@/lib/auth';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     
     return NextResponse.json({
