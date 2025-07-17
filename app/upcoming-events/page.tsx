@@ -102,9 +102,6 @@ export default async function UpcomingEventsPage() {
                         .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
                         .map(([sortKey, { displayName, events }]) => (
                             <div key={sortKey}>
-                                <div className="text-center mt-8 mb-4">
-                                    <h2 className="text-white text-4xl font-bold">{displayName}</h2>
-                                </div>
                                 <div className="px-4 md:px-12">
                                     <EventList 
                                         data={events} 
