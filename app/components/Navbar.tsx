@@ -49,7 +49,7 @@ const Navbar = () => {
                         <NavbarItem label="Sobre nosotros" />
                         {session?.user && <NavbarItem label="Mis eventos" />}
                         <NavbarItem label="Próximos eventos" />
-                        <NavbarItem label="Cerrar sesión" />
+                        {session?.user && <NavbarItem label="Cerrar sesión" />}
                     </div>
                     <div className="flex items-center ml-8 gap-7">
                         <Link href="/search" className="text-gray-200 hover:text-white cursor-pointer mr-4">
@@ -139,7 +139,7 @@ const MobileMenu = () => {
                 <NavbarItem label="Sobre nosotros" />
                 {session?.user && <NavbarItem label="Mis eventos" />}
                 <NavbarItem label="Próximos eventos" />
-                <NavbarItem label="Cerrar sesión" />
+                {session?.user && <NavbarItem label="Cerrar sesión" />}
             </div>
         </div>
     );
